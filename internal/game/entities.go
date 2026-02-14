@@ -1,6 +1,6 @@
 package game
 
-import "github.com/thorej/go-galaxians/internal/render"
+import "github.com/teedjayj/go-galaxians/internal/render"
 
 type Vec2 struct {
 	X float64

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"image"
 
-	"github.com/thorej/go-galaxians/internal/render"
+	"github.com/teedjayj/go-galaxians/internal/render"
 )
 
 type Config struct{}

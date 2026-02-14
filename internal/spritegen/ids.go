@@ -1,6 +1,6 @@
 package spritegen
 
-import "github.com/thorej/go-galaxians/internal/render"
+import "github.com/teedjayj/go-galaxians/internal/render"
 
 const (
 	IDPlayerShip      render.SpriteID = "player.ship"

@@ -3,7 +3,7 @@ package game
 import (
 	"testing"
 
-	"github.com/thorej/go-galaxians/internal/spritegen"
+	"github.com/teedjayj/go-galaxians/internal/spritegen"
 )
 
 func TestHitAABB(t *testing.T) {

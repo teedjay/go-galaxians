@@ -5,7 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/thorej/go-galaxians/internal/game"
+	"github.com/teedjayj/go-galaxians/internal/game"
 )
 
 func main() {

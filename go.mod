@@ -1,4 +1,4 @@
-module github.com/thorej/go-galaxians
+module github.com/teedjayj/go-galaxians
 
 go 1.25.7
 

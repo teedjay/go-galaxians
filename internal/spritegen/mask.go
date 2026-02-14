@@ -9,7 +9,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/thorej/go-galaxians/internal/render"
+	"github.com/teedjayj/go-galaxians/internal/render"
 )
 
 func frameFromMask(mask []string, palette map[rune]color.RGBA, anchor image.Point) (render.Frame, error) {

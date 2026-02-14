@@ -3,7 +3,7 @@ package spritegen
 import (
 	"testing"
 
-	"github.com/thorej/go-galaxians/internal/render"
+	"github.com/teedjayj/go-galaxians/internal/render"
 )
 
 func TestGenerateAllExpectedIDsPresent(t *testing.T) {
