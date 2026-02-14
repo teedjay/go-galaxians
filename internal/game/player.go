@@ -1,6 +1,10 @@
 package game
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+
+	"github.com/thorej/go-invaders-spark/internal/spritegen"
+)
 
 const (
 	playerSpeed      = 2.0
@@ -55,7 +59,7 @@ func (g *Game) spawnPlayerShot() {
 	g.projectiles = append(g.projectiles, Projectile{
 		Pos:       Vec2{X: g.player.Pos.X, Y: g.player.Pos.Y - 8},
 		Vel:       Vec2{X: 0, Y: playerShotSpeed},
-		SpriteID:  "bullet.player",
+		SpriteID:  spritegen.IDBulletPlayer,
 		Alive:     true,
 		FromEnemy: false,
 	})

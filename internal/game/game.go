@@ -22,8 +22,9 @@ type Game struct {
 	gallery  *scene.Gallery
 	ticks    int
 
-	state    GameState
-	progress Progress
+	state      GameState
+	stateTicks int
+	progress   Progress
 
 	player      Player
 	enemies     []Enemy
@@ -70,12 +71,22 @@ func (g *Game) Update() error {
 	case StateTitle:
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
 			g.state = StatePlaying
+			g.stateTicks = 0
 			g.setupWave()
+			g.resetPlayer()
 		}
 	case StatePlaying:
+		g.stateTicks++
 		g.updatePlayerInput()
 		g.updateProjectilesMotion()
 		g.updateEnemies()
+		g.updateCombat()
+	case StatePlayerDead:
+		g.updateDeadState()
+	case StateWaveClear:
+		g.updateWaveClear()
+	case StateGameOver:
+		g.updateExplosions()
 	}
 	return nil
 }
