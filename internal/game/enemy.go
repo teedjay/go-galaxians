@@ -154,6 +154,7 @@ func (g *Game) updateDiveSelection() {
 	}
 	e.Vel = Vec2{X: vx, Y: 1.3}
 	g.diveCooldown = diveLaunchFrames
+	g.audio.playDive()
 }
 
 func (g *Game) updateDiveMotion() {

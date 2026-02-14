@@ -56,6 +56,7 @@ func (g *Game) countPlayerShots() int {
 }
 
 func (g *Game) spawnPlayerShot() {
+	g.audio.playShot()
 	g.projectiles = append(g.projectiles, Projectile{
 		Pos:       Vec2{X: g.player.Pos.X, Y: g.player.Pos.Y - 8},
 		Vel:       Vec2{X: 0, Y: playerShotSpeed},

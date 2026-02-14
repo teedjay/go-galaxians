@@ -20,6 +20,7 @@ const (
 type Game struct {
 	registry *render.SpriteRegistry
 	ticks    int
+	audio    *audioEngine
 
 	state      GameState
 	stateTicks int
@@ -44,6 +45,7 @@ func New() (*Game, error) {
 	registry := render.NewSpriteRegistry(sets)
 	g := &Game{
 		registry:      registry,
+		audio:         newAudioEngine(),
 		state:         StateTitle,
 		progress:      Progress{Lives: 3, Wave: 1},
 		enemies:       make([]Enemy, 0, 32),

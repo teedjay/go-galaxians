@@ -72,6 +72,7 @@ func (g *Game) checkCollisions() {
 				e.Alive = false
 				g.addScore(enemyScore(*e))
 				g.spawnExplosion(e.Pos, spritegen.IDFxExplosionSmall)
+				g.audio.playSmallExplosion()
 				break
 			}
 		}
@@ -121,6 +122,7 @@ func (g *Game) playerHit() {
 	g.state = StatePlayerDead
 	g.stateTicks = 0
 	g.spawnExplosion(g.player.Pos, spritegen.IDPlayerExplosion)
+	g.audio.playHugeExplosion()
 	g.progress.Lives--
 	if g.progress.Lives <= 0 {
 		g.state = StateGameOver
