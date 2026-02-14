@@ -23,6 +23,11 @@ type Game struct {
 
 	state    GameState
 	progress Progress
+
+	player      Player
+	enemies     []Enemy
+	projectiles []Projectile
+	explosions  []Explosion
 }
 
 func New() (*Game, error) {
@@ -36,6 +41,14 @@ func New() (*Game, error) {
 		gallery:  scene.NewGallery(registry),
 		state:    StateTitle,
 		progress: Progress{Lives: 3, Wave: 1},
+		player: Player{
+			Pos:      Vec2{X: LogicalWidth / 2, Y: LogicalHeight - 24},
+			SpriteID: spritegen.IDPlayerShip,
+			Alive:    true,
+		},
+		enemies:     make([]Enemy, 0, 32),
+		projectiles: make([]Projectile, 0, 32),
+		explosions:  make([]Explosion, 0, 32),
 	}, nil
 }
 
