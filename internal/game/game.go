@@ -1,0 +1,49 @@
+package game
+
+import (
+	"fmt"
+	"image/color"
+
+	"github.com/hajimehoshi/ebiten/v2"
+
+	"github.com/thorej/go-invaders-spark/internal/render"
+	"github.com/thorej/go-invaders-spark/internal/scene"
+	"github.com/thorej/go-invaders-spark/internal/spritegen"
+)
+
+const (
+	LogicalWidth  = 224
+	LogicalHeight = 256
+)
+
+type Game struct {
+	registry *render.SpriteRegistry
+	gallery  *scene.Gallery
+	ticks    int
+}
+
+func New() (*Game, error) {
+	sets, err := spritegen.GenerateAll(spritegen.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("generate sprites: %w", err)
+	}
+	registry := render.NewSpriteRegistry(sets)
+	return &Game{
+		registry: registry,
+		gallery:  scene.NewGallery(registry),
+	}, nil
+}
+
+func (g *Game) Update() error {
+	g.ticks++
+	return nil
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+	screen.Fill(color.RGBA{R: 0x04, G: 0x04, B: 0x10, A: 0xFF})
+	g.gallery.Draw(screen, g.ticks)
+}
+
+func (g *Game) Layout(_, _ int) (int, int) {
+	return LogicalWidth, LogicalHeight
+}
