@@ -4,6 +4,12 @@ A classic arcade-inspired Galaxians-style game written in Go using [Ebitengine](
 
 This project started with fully code-generated pixel sprites (no external image assets) and now includes a playable gameplay loop.
 
+![screenshot.png](screenshot.png)
+
+## Implementation details
+Project was just to test out the speed of the new GPT‑5.3‑Codex‑Spark.  The full first iteration from [plan](PLAN.md) 
+to  playable game in 8 steps tok less than 10 minutes in total with agent committing after each step.
+
 ## Features
 
 - Code-generated sprites for:
