@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"image/color"
+	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
@@ -28,6 +29,9 @@ type Game struct {
 	enemies     []Enemy
 	projectiles []Projectile
 	explosions  []Explosion
+
+	rng          *rand.Rand
+	diveCooldown int
 }
 
 func New() (*Game, error) {
@@ -44,6 +48,7 @@ func New() (*Game, error) {
 		enemies:     make([]Enemy, 0, 32),
 		projectiles: make([]Projectile, 0, 32),
 		explosions:  make([]Explosion, 0, 32),
+		rng:         newEnemyRNG(),
 	}
 	g.resetPlayer()
 	g.setupWave()
@@ -70,7 +75,7 @@ func (g *Game) Update() error {
 	case StatePlaying:
 		g.updatePlayerInput()
 		g.updateProjectilesMotion()
-		g.updateFormationMotion()
+		g.updateEnemies()
 	}
 	return nil
 }
