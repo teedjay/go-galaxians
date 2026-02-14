@@ -20,6 +20,9 @@ type Game struct {
 	registry *render.SpriteRegistry
 	gallery  *scene.Gallery
 	ticks    int
+
+	state    GameState
+	progress Progress
 }
 
 func New() (*Game, error) {
@@ -31,6 +34,8 @@ func New() (*Game, error) {
 	return &Game{
 		registry: registry,
 		gallery:  scene.NewGallery(registry),
+		state:    StateTitle,
+		progress: Progress{Lives: 3, Wave: 1},
 	}, nil
 }
 
