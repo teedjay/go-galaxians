@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/thorej/go-invaders-spark/internal/render"
+	"github.com/thorej/go-galaxians/internal/render"
 )
 
 var glyphMasks = map[rune][]string{

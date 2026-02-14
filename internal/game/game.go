@@ -6,13 +6,15 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/thorej/go-invaders-spark/internal/render"
-	"github.com/thorej/go-invaders-spark/internal/spritegen"
+	"github.com/thorej/go-galaxians/internal/render"
+	"github.com/thorej/go-galaxians/internal/spritegen"
 )
 
 const (
-	LogicalWidth  = 224
-	LogicalHeight = 256
+	LogicalWidth       = 224
+	LogicalHeight      = 256
+	firstExtraLifeAt   = 5000
+	extraLifeStepScore = 7000
 )
 
 type Game struct {
@@ -27,9 +29,11 @@ type Game struct {
 	enemies     []Enemy
 	projectiles []Projectile
 	explosions  []Explosion
+	stars       []Star
 
-	rng          *rand.Rand
-	diveCooldown int
+	rng           *rand.Rand
+	diveCooldown  int
+	nextExtraLife int
 }
 
 func New() (*Game, error) {
@@ -39,14 +43,16 @@ func New() (*Game, error) {
 	}
 	registry := render.NewSpriteRegistry(sets)
 	g := &Game{
-		registry:    registry,
-		state:       StateTitle,
-		progress:    Progress{Lives: 3, Wave: 1},
-		enemies:     make([]Enemy, 0, 32),
-		projectiles: make([]Projectile, 0, 32),
-		explosions:  make([]Explosion, 0, 32),
-		rng:         newEnemyRNG(),
+		registry:      registry,
+		state:         StateTitle,
+		progress:      Progress{Lives: 3, Wave: 1},
+		enemies:       make([]Enemy, 0, 32),
+		projectiles:   make([]Projectile, 0, 32),
+		explosions:    make([]Explosion, 0, 32),
+		rng:           newEnemyRNG(),
+		nextExtraLife: firstExtraLifeAt,
 	}
+	g.initStars()
 	g.resetPlayer()
 	g.setupWave()
 	return g, nil
@@ -66,12 +72,14 @@ func (g *Game) restartGame() {
 	g.progress = Progress{Lives: 3, Wave: 1, HighScore: g.progress.HighScore}
 	g.projectiles = g.projectiles[:0]
 	g.explosions = g.explosions[:0]
+	g.nextExtraLife = firstExtraLifeAt
 	g.setupWave()
 	g.resetPlayer()
 }
 
 func (g *Game) Update() error {
 	g.ticks++
+	g.updateStars()
 
 	switch g.state {
 	case StateTitle:

@@ -6,8 +6,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/thorej/go-invaders-spark/internal/render"
-	"github.com/thorej/go-invaders-spark/internal/spritegen"
+	"github.com/thorej/go-galaxians/internal/render"
+	"github.com/thorej/go-galaxians/internal/spritegen"
 )
 
 type Gallery struct {

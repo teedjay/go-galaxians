@@ -1,6 +1,10 @@
 package game
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/thorej/go-galaxians/internal/spritegen"
+)
 
 func TestHitAABB(t *testing.T) {
 	if !hitAABB(10, 10, 4, 4, 11, 11, 4, 4) {
@@ -58,6 +62,8 @@ func TestDeterministicDiveSelection(t *testing.T) {
 	g2 := &Game{rng: newEnemyRNG(), state: StatePlaying}
 	g1.setupWave()
 	g2.setupWave()
+	readyEnemies(g1.enemies)
+	readyEnemies(g2.enemies)
 	g1.diveCooldown = 0
 	g2.diveCooldown = 0
 	g1.player.Pos.X = 50
@@ -81,6 +87,8 @@ func TestDeterministicEnemyFire(t *testing.T) {
 	g2 := &Game{rng: newEnemyRNG(), ticks: enemyFireFrames}
 	g1.setupWave()
 	g2.setupWave()
+	readyEnemies(g1.enemies)
+	readyEnemies(g2.enemies)
 
 	g1.updateEnemyFire()
 	g2.updateEnemyFire()
@@ -96,6 +104,29 @@ func TestDeterministicEnemyFire(t *testing.T) {
 	}
 }
 
+func TestEnemyScoreByTypeAndDive(t *testing.T) {
+	if enemyScore(Enemy{SpriteID: spritegen.IDEnemyRedFlight}) != 50 {
+		t.Fatalf("unexpected red score")
+	}
+	if enemyScore(Enemy{SpriteID: spritegen.IDEnemyFlagshipFlight}) != 150 {
+		t.Fatalf("unexpected flagship score")
+	}
+	if enemyScore(Enemy{SpriteID: spritegen.IDEnemyFlagshipFlight, Diving: true}) != 220 {
+		t.Fatalf("unexpected flagship dive score")
+	}
+}
+
+func TestExtraLifeThreshold(t *testing.T) {
+	g := &Game{progress: Progress{Lives: 3}, nextExtraLife: firstExtraLifeAt}
+	g.addScore(firstExtraLifeAt)
+	if g.progress.Lives != 4 {
+		t.Fatalf("expected extra life at threshold, got %d", g.progress.Lives)
+	}
+	if g.nextExtraLife != firstExtraLifeAt+extraLifeStepScore {
+		t.Fatalf("unexpected next threshold %d", g.nextExtraLife)
+	}
+}
+
 func firstDivingIndex(enemies []Enemy) int {
 	for i, e := range enemies {
 		if e.Diving {
@@ -103,4 +134,11 @@ func firstDivingIndex(enemies []Enemy) int {
 		}
 	}
 	return -1
+}
+
+func readyEnemies(enemies []Enemy) {
+	for i := range enemies {
+		enemies[i].Entering = false
+		enemies[i].Pos = enemies[i].Formation
+	}
 }

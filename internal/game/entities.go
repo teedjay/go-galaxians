@@ -1,6 +1,6 @@
 package game
 
-import "github.com/thorej/go-invaders-spark/internal/render"
+import "github.com/thorej/go-galaxians/internal/render"
 
 type Vec2 struct {
 	X float64
@@ -26,13 +26,15 @@ type Player struct {
 }
 
 type Enemy struct {
-	Pos       Vec2
-	Vel       Vec2
-	SpriteID  render.SpriteID
-	FrameTick int
-	Alive     bool
-	Diving    bool
-	Formation Vec2
+	Pos        Vec2
+	Vel        Vec2
+	SpriteID   render.SpriteID
+	FrameTick  int
+	Alive      bool
+	Diving     bool
+	Formation  Vec2
+	Entering   bool
+	EntryDelay int
 }
 
 type Projectile struct {
@@ -49,4 +51,10 @@ type Explosion struct {
 	SpriteID  render.SpriteID
 	FrameTick int
 	Alive     bool
+}
+
+type Star struct {
+	Pos   Vec2
+	Speed float64
+	Phase int
 }

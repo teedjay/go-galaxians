@@ -1,4 +1,4 @@
-module github.com/thorej/go-invaders-spark
+module github.com/thorej/go-galaxians
 
 go 1.25.7
 

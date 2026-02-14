@@ -4,8 +4,8 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/thorej/go-invaders-spark/internal/render"
-	"github.com/thorej/go-invaders-spark/internal/spritegen"
+	"github.com/thorej/go-galaxians/internal/render"
+	"github.com/thorej/go-galaxians/internal/spritegen"
 )
 
 const (
@@ -18,6 +18,7 @@ const (
 	formationSpeed   = 0.35
 	formationDrop    = 8.0
 	diveLaunchFrames = 90
+	entrySpeed       = 1.25
 )
 
 func newEnemyRNG() *rand.Rand {
@@ -34,25 +35,58 @@ func (g *Game) setupWave() {
 		spritegen.IDEnemyFlagshipFlight,
 	}
 
+	entryGap := 5
+	if g.progress.Wave > 3 {
+		entryGap = 4
+	}
+	if g.progress.Wave > 6 {
+		entryGap = 3
+	}
+
 	for row := 0; row < formationRows; row++ {
 		for col := 0; col < formationCols; col++ {
-			x := formationStartX + float64(col)*formationStepX
-			y := formationStartY + float64(row)*formationStepY
+			targetX := formationStartX + float64(col)*formationStepX
+			targetY := formationStartY + float64(row)*formationStepY
+			idx := row*formationCols + col
+			startY := -40.0 - float64(row*10)
 			g.enemies = append(g.enemies, Enemy{
-				Pos:       Vec2{X: x, Y: y},
-				Vel:       Vec2{X: formationSpeed, Y: 0},
-				SpriteID:  sprites[row%len(sprites)],
-				Alive:     true,
-				Formation: Vec2{X: x, Y: y},
+				Pos:        Vec2{X: targetX, Y: startY},
+				Vel:        Vec2{X: formationSpeed, Y: 0},
+				SpriteID:   sprites[row%len(sprites)],
+				Alive:      true,
+				Formation:  Vec2{X: targetX, Y: targetY},
+				Entering:   true,
+				EntryDelay: idx * entryGap,
 			})
 		}
 	}
 }
 
 func (g *Game) updateEnemies() {
+	g.updateEnemyEntry()
 	g.updateFormationMotion()
 	g.updateDiveSelection()
 	g.updateDiveMotion()
+}
+
+func (g *Game) updateEnemyEntry() {
+	for i := range g.enemies {
+		e := &g.enemies[i]
+		if !e.Alive || !e.Entering {
+			continue
+		}
+		if e.EntryDelay > 0 {
+			e.EntryDelay--
+			continue
+		}
+		e.Pos.Y += entrySpeed
+		e.Pos.X += math.Sin((float64(g.ticks)+e.Formation.X)/17.0) * 0.25
+		if e.Pos.Y >= e.Formation.Y {
+			e.Pos = e.Formation
+			e.Entering = false
+			e.Vel.Y = 0
+		}
+	}
 }
 
 func (g *Game) updateFormationMotion() {
@@ -62,7 +96,7 @@ func (g *Game) updateFormationMotion() {
 	left := 9999.0
 	right := -9999.0
 	for _, e := range g.enemies {
-		if !e.Alive || e.Diving {
+		if !e.Alive || e.Diving || e.Entering {
 			continue
 		}
 		if e.Pos.X < left {
@@ -78,14 +112,16 @@ func (g *Game) updateFormationMotion() {
 		flip = true
 	}
 	for i := range g.enemies {
-		if !g.enemies[i].Alive || g.enemies[i].Diving {
+		if !g.enemies[i].Alive || g.enemies[i].Diving || g.enemies[i].Entering {
 			continue
 		}
 		if flip {
 			g.enemies[i].Vel.X *= -1
 			g.enemies[i].Pos.Y += formationDrop
+			g.enemies[i].Formation.Y += formationDrop
 		}
 		g.enemies[i].Pos.X += g.enemies[i].Vel.X
+		g.enemies[i].Formation.X += g.enemies[i].Vel.X
 	}
 }
 
@@ -99,7 +135,7 @@ func (g *Game) updateDiveSelection() {
 	}
 	candidates := make([]int, 0, len(g.enemies))
 	for i := range g.enemies {
-		if g.enemies[i].Alive && !g.enemies[i].Diving {
+		if g.enemies[i].Alive && !g.enemies[i].Diving && !g.enemies[i].Entering {
 			candidates = append(candidates, i)
 		}
 	}
@@ -109,13 +145,14 @@ func (g *Game) updateDiveSelection() {
 	idx := candidates[g.rng.Intn(len(candidates))]
 	e := &g.enemies[idx]
 	e.Diving = true
+	e.FrameTick = 0
 	vx := 0.0
 	if g.player.Pos.X > e.Pos.X {
-		vx = 0.7
+		vx = 0.9
 	} else {
-		vx = -0.7
+		vx = -0.9
 	}
-	e.Vel = Vec2{X: vx, Y: 1.2}
+	e.Vel = Vec2{X: vx, Y: 1.3}
 	g.diveCooldown = diveLaunchFrames
 }
 
@@ -125,23 +162,28 @@ func (g *Game) updateDiveMotion() {
 		if !e.Alive || !e.Diving {
 			continue
 		}
-		e.Pos.X += e.Vel.X
-		e.Pos.Y += e.Vel.Y
-
-		if e.Pos.Y > LogicalHeight*0.65 {
+		e.FrameTick++
+		if e.FrameTick < 55 {
+			drift := 0.2 * math.Sin(float64(e.FrameTick)/6.0)
+			e.Pos.X += e.Vel.X + drift
+			e.Pos.Y += e.Vel.Y + 0.2*math.Sin(float64(e.FrameTick)/8.0)
+		} else {
 			dx := e.Formation.X - e.Pos.X
 			dy := e.Formation.Y - e.Pos.Y
 			d := math.Hypot(dx, dy)
 			if d < 2.5 {
 				e.Pos = e.Formation
 				e.Diving = false
+				e.FrameTick = 0
 				e.Vel = Vec2{X: formationSpeed, Y: 0}
 				continue
 			}
 			if d > 0 {
-				e.Vel.X = (dx / d) * 1.2
-				e.Vel.Y = (dy / d) * 1.2
+				e.Vel.X = (dx / d) * 1.4
+				e.Vel.Y = (dy / d) * 1.4
 			}
+			e.Pos.X += e.Vel.X
+			e.Pos.Y += e.Vel.Y
 		}
 	}
 }

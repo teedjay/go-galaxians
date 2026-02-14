@@ -1,6 +1,6 @@
 package spritegen
 
-import "github.com/thorej/go-invaders-spark/internal/render"
+import "github.com/thorej/go-galaxians/internal/render"
 
 type spriteSpec struct {
 	id            render.SpriteID

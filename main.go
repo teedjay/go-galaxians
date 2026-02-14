@@ -5,12 +5,12 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/thorej/go-invaders-spark/internal/game"
+	"github.com/thorej/go-galaxians/internal/game"
 )
 
 func main() {
 	ebiten.SetWindowSize(game.LogicalWidth*3, game.LogicalHeight*3)
-	ebiten.SetWindowTitle("Go Galaxians - Sprite Gallery")
+	ebiten.SetWindowTitle("Go Galaxians")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	g, err := game.New()

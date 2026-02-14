@@ -6,12 +6,13 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/thorej/go-invaders-spark/internal/render"
-	"github.com/thorej/go-invaders-spark/internal/scene"
+	"github.com/thorej/go-galaxians/internal/render"
+	"github.com/thorej/go-galaxians/internal/scene"
 )
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{R: 0x04, G: 0x04, B: 0x10, A: 0xFF})
+	g.drawStars(screen)
 	g.drawHUD(screen)
 	g.drawWorld(screen)
 
@@ -24,6 +25,23 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case StateGameOver:
 		scene.DrawText(g.registry, screen, "GAME OVER", 68, 120, 1)
 		scene.DrawText(g.registry, screen, "PRESS SPACE", 64, 138, 1)
+	}
+}
+
+func (g *Game) drawStars(screen *ebiten.Image) {
+	for i := range g.stars {
+		star := g.stars[i]
+		x := int(star.Pos.X)
+		y := int(star.Pos.Y)
+		if x < 0 || x >= LogicalWidth || y < 0 || y >= LogicalHeight {
+			continue
+		}
+		twinkle := (g.ticks+star.Phase)%48 < 10
+		if twinkle {
+			screen.Set(x, y, color.RGBA{R: 0x7F, G: 0xE8, B: 0xFF, A: 0xFF})
+		} else {
+			screen.Set(x, y, color.RGBA{R: 0x8C, G: 0x8C, B: 0xAA, A: 0xFF})
+		}
 	}
 }
 

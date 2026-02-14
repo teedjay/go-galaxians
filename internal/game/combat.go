@@ -1,8 +1,8 @@
 package game
 
 import (
-	"github.com/thorej/go-invaders-spark/internal/render"
-	"github.com/thorej/go-invaders-spark/internal/spritegen"
+	"github.com/thorej/go-galaxians/internal/render"
+	"github.com/thorej/go-galaxians/internal/spritegen"
 )
 
 const (
@@ -27,7 +27,7 @@ func (g *Game) updateEnemyFire() {
 	}
 	candidates := make([]int, 0, len(g.enemies))
 	for i := range g.enemies {
-		if g.enemies[i].Alive {
+		if g.enemies[i].Alive && !g.enemies[i].Entering {
 			candidates = append(candidates, i)
 		}
 	}
@@ -70,14 +70,49 @@ func (g *Game) checkCollisions() {
 			if hitAABB(p.Pos.X, p.Pos.Y, 2, 6, e.Pos.X, e.Pos.Y, 10, 8) {
 				p.Alive = false
 				e.Alive = false
-				g.progress.Score += 100
-				if g.progress.Score > g.progress.HighScore {
-					g.progress.HighScore = g.progress.Score
-				}
+				g.addScore(enemyScore(*e))
 				g.spawnExplosion(e.Pos, spritegen.IDFxExplosionSmall)
 				break
 			}
 		}
+	}
+}
+
+func (g *Game) addScore(points int) {
+	g.progress.Score += points
+	if g.progress.Score > g.progress.HighScore {
+		g.progress.HighScore = g.progress.Score
+	}
+	for g.progress.Score >= g.nextExtraLife {
+		g.progress.Lives++
+		g.nextExtraLife += extraLifeStepScore
+	}
+}
+
+func enemyScore(e Enemy) int {
+	switch e.SpriteID {
+	case spritegen.IDEnemyRedFlight:
+		if e.Diving {
+			return 100
+		}
+		return 50
+	case spritegen.IDEnemyPurpleFlight:
+		if e.Diving {
+			return 130
+		}
+		return 80
+	case spritegen.IDEnemyEscortFlight:
+		if e.Diving {
+			return 170
+		}
+		return 100
+	case spritegen.IDEnemyFlagshipFlight:
+		if e.Diving {
+			return 220
+		}
+		return 150
+	default:
+		return 100
 	}
 }
 
