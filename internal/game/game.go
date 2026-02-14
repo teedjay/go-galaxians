@@ -46,6 +46,7 @@ func New() (*Game, error) {
 		explosions:  make([]Explosion, 0, 32),
 	}
 	g.resetPlayer()
+	g.setupWave()
 	return g, nil
 }
 
@@ -64,10 +65,12 @@ func (g *Game) Update() error {
 	case StateTitle:
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
 			g.state = StatePlaying
+			g.setupWave()
 		}
 	case StatePlaying:
 		g.updatePlayerInput()
 		g.updateProjectilesMotion()
+		g.updateFormationMotion()
 	}
 	return nil
 }
