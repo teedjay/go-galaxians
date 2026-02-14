@@ -2,13 +2,11 @@ package game
 
 import (
 	"fmt"
-	"image/color"
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/thorej/go-invaders-spark/internal/render"
-	"github.com/thorej/go-invaders-spark/internal/scene"
 	"github.com/thorej/go-invaders-spark/internal/spritegen"
 )
 
@@ -19,7 +17,6 @@ const (
 
 type Game struct {
 	registry *render.SpriteRegistry
-	gallery  *scene.Gallery
 	ticks    int
 
 	state      GameState
@@ -43,7 +40,6 @@ func New() (*Game, error) {
 	registry := render.NewSpriteRegistry(sets)
 	g := &Game{
 		registry:    registry,
-		gallery:     scene.NewGallery(registry),
 		state:       StateTitle,
 		progress:    Progress{Lives: 3, Wave: 1},
 		enemies:     make([]Enemy, 0, 32),
@@ -64,16 +60,23 @@ func (g *Game) resetPlayer() {
 	}
 }
 
+func (g *Game) restartGame() {
+	g.state = StatePlaying
+	g.stateTicks = 0
+	g.progress = Progress{Lives: 3, Wave: 1, HighScore: g.progress.HighScore}
+	g.projectiles = g.projectiles[:0]
+	g.explosions = g.explosions[:0]
+	g.setupWave()
+	g.resetPlayer()
+}
+
 func (g *Game) Update() error {
 	g.ticks++
 
 	switch g.state {
 	case StateTitle:
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
-			g.state = StatePlaying
-			g.stateTicks = 0
-			g.setupWave()
-			g.resetPlayer()
+			g.restartGame()
 		}
 	case StatePlaying:
 		g.stateTicks++
@@ -87,13 +90,11 @@ func (g *Game) Update() error {
 		g.updateWaveClear()
 	case StateGameOver:
 		g.updateExplosions()
+		if ebiten.IsKeyPressed(ebiten.KeySpace) {
+			g.restartGame()
+		}
 	}
 	return nil
-}
-
-func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{R: 0x04, G: 0x04, B: 0x10, A: 0xFF})
-	g.gallery.Draw(screen, g.ticks)
 }
 
 func (g *Game) Layout(_, _ int) (int, int) {
