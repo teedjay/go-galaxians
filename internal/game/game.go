@@ -36,24 +36,39 @@ func New() (*Game, error) {
 		return nil, fmt.Errorf("generate sprites: %w", err)
 	}
 	registry := render.NewSpriteRegistry(sets)
-	return &Game{
-		registry: registry,
-		gallery:  scene.NewGallery(registry),
-		state:    StateTitle,
-		progress: Progress{Lives: 3, Wave: 1},
-		player: Player{
-			Pos:      Vec2{X: LogicalWidth / 2, Y: LogicalHeight - 24},
-			SpriteID: spritegen.IDPlayerShip,
-			Alive:    true,
-		},
+	g := &Game{
+		registry:    registry,
+		gallery:     scene.NewGallery(registry),
+		state:       StateTitle,
+		progress:    Progress{Lives: 3, Wave: 1},
 		enemies:     make([]Enemy, 0, 32),
 		projectiles: make([]Projectile, 0, 32),
 		explosions:  make([]Explosion, 0, 32),
-	}, nil
+	}
+	g.resetPlayer()
+	return g, nil
+}
+
+func (g *Game) resetPlayer() {
+	g.player = Player{
+		Pos:      Vec2{X: LogicalWidth / 2, Y: LogicalHeight - 24},
+		SpriteID: spritegen.IDPlayerShip,
+		Alive:    true,
+	}
 }
 
 func (g *Game) Update() error {
 	g.ticks++
+
+	switch g.state {
+	case StateTitle:
+		if ebiten.IsKeyPressed(ebiten.KeySpace) {
+			g.state = StatePlaying
+		}
+	case StatePlaying:
+		g.updatePlayerInput()
+		g.updateProjectilesMotion()
+	}
 	return nil
 }
 
